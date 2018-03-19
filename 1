@@ -1,0 +1,187 @@
+#include <iostream>
+#include <fraction.h>
+#include <limits.h>
+#include <cmath>
+#include<assert.h>
+#include<vector>
+Fraction::Fraction()
+{
+    numerator = 0;
+    denominator = 1;
+}
+
+template<class Type1, class Type2>
+Fraction::Fraction(Type1 n, Type2 d)
+{
+    if(d == 0)
+    {
+	throw std::overflow_error("Exception:Attempt to divide by zero");
+    } else if(n == 0)
+    {
+	numerator = 0;
+	denominator = 1;       
+    } else
+    {
+	int sign = 1;
+	if(check_overflow(n) < 0 )
+	{
+	    sign *= -1;
+	    n *= -1;
+	}
+        if(check_overflow(d) < 0 )
+        {
+            sign *= -1;
+            d *= -1;
+        }
+        long long divisor = gcd(n, d);
+	numerator  = n/(divisor * sign);
+	denominator  = d/(divisor);
+    }
+}
+
+template <class Type>
+Type check_overflow(Type x)
+{
+    if((x > LLONG_MAX) || (x < LLONG_MIN))
+    {
+        throw std::overflow_error("Exception:Integer overflow");
+    } else
+    {
+        return x;
+    }  
+}
+
+unsigned int gcd(unsigned int x, unsigned int y)
+{
+    if(x == 0)
+    {
+        return y;
+    }
+    return gcd(y%x, x);
+}
+
+Fraction operator+(const Fraction& left, const Fraction& right)
+{
+    Fraction temp(left.numerator*right.denominator
+                  +right.numerator*left.denominator,
+                  left.denominator*right.denominator);
+    return temp;
+}
+
+Fraction operator-(const Fraction& left, const Fraction& right)
+{
+    Fraction temp(left.numerator*right.denominator
+                  -right.numerator*left.denominator,
+                  left.denominator*right.denominator);
+    return temp;
+}
+
+Fraction operator*(const Fraction& left, const Fraction& right)
+{
+    Fraction temp(left.numerator*right.numerator,
+                  left.denominator*right.denominator);
+    return temp;
+}
+
+Fraction operator/(const Fraction& left, const Fraction& right)
+{
+    Fraction temp(left.numerator*right.denominator,
+                  left.denominator*right.numerator);
+    return temp;
+}
+
+bool operator==(const Fraction& left, const Fraction& right)
+{
+    return (left.numerator == right.numerator) && 
+                  (left.denominator == right.denominator);
+    
+}
+
+bool operator!=(const Fraction& left, const Fraction& right)
+{
+    return !(left == right);
+}
+
+bool operator>(const Fraction& left, const Fraction& right)
+{
+    return ((left.numerator * right.denominator) - (right.numerator * left.denominator)) > 0;
+}
+
+bool operator<(const Fraction& left, const Fraction& right)
+{
+    return ((left.numerator * right.denominator) - (right.numerator * left.denominator)) < 0;
+}
+
+bool operator>=(const Fraction& left, const Fraction& right)
+{
+    return (left > right) or (left == right);
+}
+
+bool operator<=(const Fraction& left, const Fraction& right)
+{
+    return (left < right) or (left == right);
+}
+
+std::ostream& operator<<(std::ostream &stream, const Fraction &obj) {
+    if (obj.denominator == 1) {
+        stream << obj.numerator;
+    } else {
+        stream << obj.numerator << "/" << obj.denominator;
+    }
+    return stream;
+}
+
+void test_add(){
+    std::vector<long long> v = {90, 8, 2, 4};
+    std::vector<long long> v1 = {103, 8};
+    int j = 0;
+    for(int i = 0; i < v.size(); i+=4)
+    {
+        
+        Fraction f1(v[i], v[i+1]);
+        Fraction f2(v[i+2], v[i+3]);
+    Fraction expected(v1[j], v1[j+1]);
+
+
+    Fraction c = f1 + f2;
+
+    assert(c.numerator == expected.numerator);
+    assert(c.denominator == expected.denominator); 
+    j += 2;
+    }
+    Fraction a(90, 8);
+    Fraction b(2, 4);
+
+    Fraction expected(103, 8);
+
+
+    Fraction c = a + b;
+
+    assert(c.numerator == expected.numerator);
+    assert(c.denominator == expected.denominator);
+}
+
+int main()
+{
+//    test_add();
+    Fraction f1(99, 8);
+    Fraction f2(2, 4);
+    Fraction f3, f4, f5, f6;
+    f3 = f1 + f2;
+    std::cout<<f3<<std::endl;
+    f4 = f1 * f2;
+    f5 = f1 - f2;
+    f6 = f1/f2;
+    std::cout<<f4<<":mult"<<std::endl;    
+    std::cout<<f5<<":sub"<<std::endl;
+    std::cout<<f6<<":div"<<std::endl;
+    //std::cout<<f1==f2<<std::endl;
+    if(f1 <= f2)
+    {
+    std::cout<<"equal"<<std::endl;
+    } else
+    {
+      std::cout<<"unequal"<<std::endl; 
+    }
+}
+
